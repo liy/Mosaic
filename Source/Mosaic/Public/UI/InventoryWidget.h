@@ -49,7 +49,10 @@ public:
 	void Activate(bool flag);
 
 	UFUNCTION(BlueprintImplementableEvent, Category=Custom)
-	void Focus();
+	void FocusIn();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = Custom)
+	void FocusOff();
 
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 

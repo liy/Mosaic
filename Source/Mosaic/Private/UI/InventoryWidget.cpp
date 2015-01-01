@@ -110,10 +110,11 @@ void UInventoryWidget::Activate(bool flag)
 	if (IsActive)
 	{
 		SetVisibility(ESlateVisibility::Visible);
-		Focus();
+		FocusIn();
 	}
 	else{
 		SetVisibility(ESlateVisibility::Hidden);
+		FocusOff();
 	}
 }
 
