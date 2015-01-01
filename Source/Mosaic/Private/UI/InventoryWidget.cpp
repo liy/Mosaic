@@ -27,7 +27,7 @@ UInventoryWidget::UInventoryWidget(const FObjectInitializer& objectInitializer) 
 //{
 //	TSharedRef<SWidget> root = Super::RebuildWidget();
 //
-//	if (!IsDesignTime()){
+//	if (!IsDesignTime()){a
 //		/*UWidget* RootWidget = Blueprint->WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass());
 //		RootWidget->SetIsDesignTime(true);
 //		Blueprint->WidgetTree->RootWidget = RootWidget;*/
@@ -66,12 +66,12 @@ TSharedRef<SWidget> UInventoryWidget::RebuildWidget()
 		SlotContainer = Cast<UUniformGridPanel>(GetWidgetFromName(TEXT("UniformGridPanel")));
 
 		// Initialize the slots
-		int len = Inventory->DataEntries.Num();
+		int len = Inventory->Num();
 		if (len != 0){
 			SlotContainer->ClearChildren();
 			for (int i = 0; i < len; ++i)
 			{
-				AddSlotAt(Inventory->DataEntries[i], i);
+				AddSlotAt(Inventory->Get(i), i);
 			}
 		}
 
@@ -114,7 +114,7 @@ void UInventoryWidget::Add(const FPickupData& data)
 {
 	Inventory->Add(data);
 
-	AddSlotAt(data, Inventory->DataEntries.Num()-1);
+	AddSlotAt(data, Inventory->Num() - 1);
 }
 
 void UInventoryWidget::Remove(const FPickupData& data)

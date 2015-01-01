@@ -22,8 +22,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Property)
 	int32 MaxSize;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Property)
-	TArray<FPickupData> DataEntries;
+	UFUNCTION(BlueprintCallable, Category = Manipulation)
+	FPickupData& Get(int32 index);
 
 	UFUNCTION(BlueprintCallable, Category = Manipulation)
 	void Add(const FPickupData item);
@@ -36,4 +36,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category=Manipulation)
 	void Clear();
+
+	UFUNCTION(BlueprintCallable, Category = Manipulation)
+	int32 Num();
+
+private:
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Property)
+	TArray<FPickupData> DataEntries;
 };

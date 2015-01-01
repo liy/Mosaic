@@ -8,11 +8,11 @@ TSharedRef<SWidget> UInventorySlotWidget::RebuildWidget()
 	TSharedRef<SWidget> root = Super::RebuildWidget();
 
 	
-	if (!bDesignTime){
-		UButton* button = Cast<UButton>(GetWidgetFromName(TEXT("Button")));
+	//if (!bDesignTime){
+	//	UButton* button = Cast<UButton>(GetWidgetFromName(TEXT("Button")));
 
-		button->OnClicked.AddDynamic(this, &UInventorySlotWidget::OnClickDoSometing);
-	}
+	//	button->OnClicked.AddDynamic(this, &UInventorySlotWidget::OnClickDoSometing);
+	//}
 
 	return root;
 }

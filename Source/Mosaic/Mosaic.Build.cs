@@ -6,6 +6,10 @@ public class Mosaic : ModuleRules
 {
 	public Mosaic(TargetInfo Target)
 	{
+        // https://answers.unrealengine.com/questions/3647/how-to-improve-compile-times-for-a-c-project.html
+        MinFilesUsingPrecompiledHeaderOverride = 1;
+        bFasterWithoutUnity = true;
+
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
