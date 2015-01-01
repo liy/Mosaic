@@ -7,7 +7,7 @@
 #include "Inventory.h"
 #include "Pickup.h"
 
-UInventoryWidget::UInventoryWidget(const FObjectInitializer& objectInitializer) : Super(objectInitializer), IsActive(false)
+UInventoryWidget::UInventoryWidget(const FObjectInitializer& objectInitializer) : Super(objectInitializer)
 {
 	// I cannot use "new", have to use CreateDefaultSubobject?!?!?
 	// Inventory = new UInventory();
@@ -15,6 +15,8 @@ UInventoryWidget::UInventoryWidget(const FObjectInitializer& objectInitializer) 
 	// If I'm not in the constructor, I can use ConstructObject?!?!??!?!
 	// Inventory = ConstructObject<UInventory>(UInventory::StaticClass(), this);
 	Inventory = objectInitializer.CreateDefaultSubobject<UInventory>(this, TEXT("Inventory"));
+
+	Activate(false);
 
 	static ConstructorHelpers::FClassFinder<UInventorySlotWidget> classObject(TEXT("/Game/UI/InventorySlotWidgetBP"));
 	if (classObject.Class != NULL)
@@ -97,13 +99,18 @@ void UInventoryWidget::Tick_Implementation(FGeometry MyGeometry, float DeltaSeco
 		ACharacterController* controller = Cast<ACharacterController>(GetOwningPlayer());
 		if (controller && controller->ProjectWorldLocationToScreen(controller->GetCharacter()->GetActorLocation(), screenLocation))
 		{
-			SetVisibility(ESlateVisibility::Visible);
 			SetPositionInViewport(screenLocation);
 		}
-		else
-		{
-			SetVisibility(ESlateVisibility::Hidden);
-		}
+	}
+}
+
+void UInventoryWidget::Activate(bool flag)
+{
+	IsActive = flag;
+	if (IsActive)
+	{
+		SetVisibility(ESlateVisibility::Visible);
+		Focus();
 	}
 	else{
 		SetVisibility(ESlateVisibility::Hidden);

@@ -45,7 +45,15 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = Custom)
 	void Refresh();
 
+	UFUNCTION(BlueprintCallable, Category=Custom)
+	void Activate(bool flag);
+
+	UFUNCTION(BlueprintImplementableEvent, Category=Custom)
+	void Focus();
+
 	virtual TSharedRef<SWidget> RebuildWidget() override;
+
+
 
 	/**
 	 * Construct BlueprintNativeEvent implementation. Setup the Alignment.
