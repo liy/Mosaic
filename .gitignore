@@ -1,0 +1,14 @@
+/*.sln
+*.suo
+*.opensdf
+*.sdf
+/*.xcodeproj
+/Makefile
+/CMakeLists.txt
+/.ue4dependencies
+
+/Binaries
+/Plugins
+/DerivedDataCache
+/Intermediate
+/Saved

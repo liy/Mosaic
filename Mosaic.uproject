@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{DD7C7FD6-4A35-2F31-9C86-E684213AD3AC}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "Mosaic",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
