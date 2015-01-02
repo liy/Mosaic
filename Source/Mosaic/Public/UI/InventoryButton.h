@@ -19,8 +19,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Appearance)
 	FSlateBrush ImageBrush;
 
+	UPROPERTY()
+	FGetSlateBrush ImageBrushDelegate;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Appearance)
 	FSlateBrush BorderImageBrush;
+
+	UPROPERTY()
+	FGetSlateBrush BorderImageBrushDelegate;
 
 	/** The color multiplier for the button background */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Appearance)
@@ -28,6 +34,8 @@ public:
 
 public:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
+
+	virtual void SynchronizeProperties() override;
 
 	//void Construct_Implementation() override;
 
@@ -46,4 +54,10 @@ public:
 protected:
 	/** Cached pointer to the underlying slate button owned by this UWidget */
 	TSharedPtr<class SInventoryButton> SlateButton;
+
+	/** Translates the bound brush data and assigns it to the cached brush used by this widget. */
+	const FSlateBrush* ConvertImage(TAttribute<FSlateBrush> InImageAsset) const;
+
+	/** Translates the bound brush data and assigns it to the cached brush used by this widget. */
+	const FSlateBrush* ConvertBorderImage(TAttribute<FSlateBrush> InImageAsset) const;
 };

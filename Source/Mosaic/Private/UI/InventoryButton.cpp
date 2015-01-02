@@ -30,6 +30,34 @@ TSharedRef<SWidget> UInventoryButton::RebuildWidget()
 //	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("OnClickDoSometing"));
 //}
 
+const FSlateBrush* UInventoryButton::ConvertImage(TAttribute<FSlateBrush> InImageAsset) const
+{
+	UInventoryButton* mutableThis = const_cast<UInventoryButton*>(this);
+	mutableThis->ImageBrush = InImageAsset.Get();
+
+	return &ImageBrush;
+}
+
+const FSlateBrush* UInventoryButton::ConvertBorderImage(TAttribute<FSlateBrush> InImageAsset) const
+{
+	UInventoryButton* mutableThis = const_cast<UInventoryButton*>(this);
+	mutableThis->BorderImageBrush = InImageAsset.Get();
+
+	return &BorderImageBrush;
+}
+
+
+void UInventoryButton::SynchronizeProperties()
+{
+	Super::SynchronizeProperties();
+
+	TAttribute<const FSlateBrush*> borderImageBinding = OPTIONAL_BINDING_CONVERT(FSlateBrush, BorderImageBrush, const FSlateBrush*, ConvertBorderImage);
+	TAttribute<const FSlateBrush*> imageBinding = OPTIONAL_BINDING_CONVERT(FSlateBrush, ImageBrush, const FSlateBrush*, ConvertImage);
+
+	SlateButton->SetImage(imageBinding);
+	SlateButton->SetBorderImage(borderImageBinding);
+}
+
 void UInventoryButton::SetBackgroundColor(FLinearColor InBackgroundColor)
 {
 
