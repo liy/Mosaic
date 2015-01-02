@@ -48,9 +48,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category=Custom)
 	void Activate(bool flag);
 
+	// When activated, get the focus to the button
 	UFUNCTION(BlueprintImplementableEvent, Category=Custom)
 	void FocusIn();
 
+	// Set the focus back to the game play.
 	UFUNCTION(BlueprintImplementableEvent, Category = Custom)
 	void FocusOff();
 
