@@ -4,7 +4,7 @@
 
 #include "PickupDataLibrary.generated.h"
 
-UENUM()
+UENUM(BlueprintType)
 enum class EPickupType : uint8
 {
 	Head,

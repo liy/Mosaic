@@ -19,7 +19,7 @@ public:
 	UInventoryWidget(const FObjectInitializer& objectInitializer);
 
 	// Container for slots, used for C++ only
-	class UUniformGridPanel* SlotContainer;
+	class UUniformGridPanel* ButtonContainer;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Custom)
 	bool IsActive;
@@ -27,11 +27,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Custom)
 	class UInventory* Inventory;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Custom)
-	TArray<class UInventorySlotWidget*> Slots;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Custom)
-	TSubclassOf<class UInventorySlotWidget>  SlotWidgetClass;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category=Custom)
+	TSubclassOf<class UUserWidget>  InventoryButtonClass;
 
 	UFUNCTION(BlueprintCallable, Category=Custom)
 	void Add(const FPickupData& data);
@@ -44,6 +41,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = Custom)
 	void Refresh();
+
+	UFUNCTION(BlueprintCallable, Category=Custom)
+	UUserWidget* GetChildAt(int32 index);
 
 	UFUNCTION(BlueprintCallable, Category=Custom)
 	void Activate(bool flag);
@@ -74,5 +74,5 @@ public:
 
 private:
 
-	void AddSlotAt(const FPickupData& data, int index);
+	void CreateButton(const FPickupData& data, int index);
 };

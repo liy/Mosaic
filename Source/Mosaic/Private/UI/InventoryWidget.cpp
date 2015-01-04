@@ -3,7 +3,7 @@
 #include "Mosaic.h"
 #include "CharacterController.h"
 #include "InventoryWidget.h"
-#include "InventorySlotWidget.h"
+#include "InventoryButton.h"
 #include "Inventory.h"
 #include "Pickup.h"
 
@@ -18,69 +18,33 @@ UInventoryWidget::UInventoryWidget(const FObjectInitializer& objectInitializer) 
 
 	Activate(false);
 
-	static ConstructorHelpers::FClassFinder<UInventorySlotWidget> classObject(TEXT("/Game/UI/InventorySlotWidgetBP"));
+	static ConstructorHelpers::FClassFinder<UUserWidget> classObject(TEXT("/Game/UI/InventoryButtonBP"));
 	if (classObject.Class != NULL)
 	{
-		SlotWidgetClass = classObject.Class;
+		InventoryButtonClass = classObject.Class;
 	}
 }
-
-//TSharedRef<SWidget> UInventoryWidget::RebuildWidget()
-//{
-//	TSharedRef<SWidget> root = Super::RebuildWidget();
-//
-//	if (!IsDesignTime()){a
-//		/*UWidget* RootWidget = Blueprint->WidgetTree->ConstructWidget<UCanvasPanel>(UCanvasPanel::StaticClass());
-//		RootWidget->SetIsDesignTime(true);
-//		Blueprint->WidgetTree->RootWidget = RootWidget;*/
-//
-//		SlotContainer = Cast<UUniformGridPanel>(GetWidgetFromName(TEXT("UniformGridPanel")));
-//		UInventorySlotWidget* slotWidget = WidgetTree->ConstructWidget<UInventorySlotWidget>(SlotWidgetClass);
-//		UUniformGridSlot* gridSlot = SlotContainer->AddChildToUniformGrid(slotWidget);
-//		gridSlot->SetRow(1);
-//		gridSlot->SetColumn(1);
-//
-//		// Get all widgets
-//		TArray<UWidget*> widgets;
-//		WidgetTree->GetAllWidgets(widgets);
-//
-//		Slots.Reset();
-//		for (UWidget* widget : widgets)
-//		{
-//			//if (widget->GetClass()->IsChildOf(UInventorySlotWidget::StaticClass()))
-//			if (widget->IsA(UInventorySlotWidget::StaticClass()))
-//			{
-//				Slots.Add(Cast<UInventorySlotWidget>(widget));
-//			}
-//		}
-//
-//		
-//	}
-//
-//	return root;
-//}
 
 TSharedRef<SWidget> UInventoryWidget::RebuildWidget()
 {
 	TSharedRef<SWidget> root = Super::RebuildWidget();
 
 	if (!bDesignTime){
-		SlotContainer = Cast<UUniformGridPanel>(GetWidgetFromName(TEXT("UniformGridPanel")));
+		ButtonContainer = Cast<UUniformGridPanel>(GetWidgetFromName(TEXT("UniformGridPanel")));
 
 		// Initialize the slots
 		int len = Inventory->Num();
 		if (len != 0){
-			SlotContainer->ClearChildren();
+			ButtonContainer->ClearChildren();
 			for (int i = 0; i < len; ++i)
 			{
-				AddSlotAt(Inventory->Get(i), i);
+				CreateButton(Inventory->Get(i), i);
 			}
 		}
 
 		SetAlignmentInViewport(FVector2D(0.5f, 0.5f));
 	}
 	
-
 	return root;
 }
 
@@ -122,29 +86,35 @@ void UInventoryWidget::Add(const FPickupData& data)
 {
 	Inventory->Add(data);
 
-	AddSlotAt(data, Inventory->Num() - 1);
+	CreateButton(data, Inventory->Num() - 1);
 }
 
 void UInventoryWidget::Remove(const FPickupData& data)
 {
 	int32 index = Inventory->Remove(data);
 
-	SlotContainer->RemoveChildAt(index);
+	ButtonContainer->RemoveChildAt(index);
 }
 
 void UInventoryWidget::RemoveAt(int32 index)
 {
 	Inventory->RemoveAt(index);
 
-	SlotContainer->RemoveChildAt(index);
+	ButtonContainer->RemoveChildAt(index);
 }
 
-void UInventoryWidget::AddSlotAt(const FPickupData& data, int index)
+UUserWidget* UInventoryWidget::GetChildAt(int32 index)
 {
-	UInventorySlotWidget* slotWidget = WidgetTree->ConstructWidget<UInventorySlotWidget>(SlotWidgetClass);
-	UUniformGridSlot* gridSlot = SlotContainer->AddChildToUniformGrid(slotWidget);
-	gridSlot->SetRow(index / 4);
-	gridSlot->SetColumn(index % 4);
+	return Cast<UUserWidget>(ButtonContainer->GetChildAt(index));
+}
 
-	slotWidget->SetTexture(data.Texture);
+void UInventoryWidget::CreateButton(const FPickupData& data, int index)
+{
+	UUserWidget* buttonBP = CreateWidget<UUserWidget>(GetOwningPlayer(), InventoryButtonClass);
+
+	UUniformGridSlot* slot = ButtonContainer->AddChildToUniformGrid(buttonBP);
+	slot->SetRow(index / 4);
+	slot->SetColumn(index % 4);
+
+	Cast<UInventoryButton>(buttonBP->GetWidgetFromName("InventoryButton"))->SetBrushFromTextureForImage(data.Texture);
 }
