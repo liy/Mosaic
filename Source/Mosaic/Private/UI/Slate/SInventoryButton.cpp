@@ -148,4 +148,19 @@ void SInventoryButton::SetOnMouseLeave(FOnMouseLeave InOnMouseLeave)
 	OnMouseLeaveDelegate = InOnMouseLeave;
 }
 
+bool SInventoryButton::SupportsKeyboardFocus() const
+{
+	return true;
+}
+
+FReply SInventoryButton::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+{
+	return FReply::Handled();
+}
+
+FReply SInventoryButton::OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+{
+	return FReply::Handled();
+}
+
 #undef LOCTEXT_NAMESPACE

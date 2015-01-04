@@ -111,8 +111,16 @@ protected:
 
 	FOnMouseLeave OnMouseLeaveDelegate;
 
+
 public:
 	void SetOnClicked(FOnClicked InOnClicked);
 	void SetOnMouseEnter(FOnMouseEnter InOnMouseEnter);
 	void SetOnMouseLeave(FOnMouseLeave InOnMouseLeave);
+
+public:
+	virtual bool SupportsKeyboardFocus() const override;
+
+	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent);
+	virtual FReply OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent);
+
 };
