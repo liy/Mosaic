@@ -30,7 +30,7 @@ TSharedRef<SWidget> UInventoryWidget::RebuildWidget()
 	TSharedRef<SWidget> root = Super::RebuildWidget();
 
 	if (!bDesignTime){
-		ButtonContainer = Cast<UUniformGridPanel>(GetWidgetFromName(TEXT("UniformGridPanel")));
+		ButtonContainer = Cast<UWrapBox>(GetWidgetFromName(TEXT("Container")));
 
 		// Initialize the slots
 		int len = Inventory->Num();
@@ -111,10 +111,7 @@ UUserWidget* UInventoryWidget::GetChildAt(int32 index)
 void UInventoryWidget::CreateButton(const FPickupData& data, int index)
 {
 	UUserWidget* buttonBP = CreateWidget<UUserWidget>(GetOwningPlayer(), InventoryButtonClass);
-
-	UUniformGridSlot* slot = ButtonContainer->AddChildToUniformGrid(buttonBP);
-	slot->SetRow(index / 4);
-	slot->SetColumn(index % 4);
+	Cast<UWrapBoxSlot>(ButtonContainer->AddChild(buttonBP));
 
 	Cast<UInventoryButton>(buttonBP->GetWidgetFromName("InventoryButton"))->SetBrushFromTextureForImage(data.Texture);
 }

@@ -8,6 +8,7 @@
 
 DECLARE_DELEGATE_TwoParams(FOnMouseEnter, const FGeometry&, const FPointerEvent&);
 DECLARE_DELEGATE_OneParam(FOnMouseLeave, const FPointerEvent&);
+DECLARE_DELEGATE_TwoParams(FOnSelection, const FGeometry&, const FKeyEvent&);
 
 class SInventoryButton : public SCompoundWidget
 {
@@ -50,6 +51,8 @@ class SInventoryButton : public SCompoundWidget
 
 	SLATE_EVENT(FOnMouseLeave, OnMouseLeaveDelegate)
 
+	SLATE_EVENT(FOnSelection, OnSelectionDelegate)
+
 	SLATE_END_ARGS()
 
 public:
@@ -62,7 +65,6 @@ public:
 	virtual FReply OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
 	virtual void OnMouseEnter(const FGeometry& geometry, const FPointerEvent& mouseEvent) override;
 	virtual void OnMouseLeave(const FPointerEvent& mouseEvent) override;
-
 
 	/** See the Image attribute */
 	void SetImage(TAttribute<const FSlateBrush*> InImage);
@@ -111,16 +113,17 @@ protected:
 
 	FOnMouseLeave OnMouseLeaveDelegate;
 
+	FOnSelection OnSelectionDelegate;
 
 public:
 	void SetOnClicked(FOnClicked InOnClicked);
 	void SetOnMouseEnter(FOnMouseEnter InOnMouseEnter);
 	void SetOnMouseLeave(FOnMouseLeave InOnMouseLeave);
+	void SetOnSelection(FOnSelection InOnSelection);
 
 public:
 	virtual bool SupportsKeyboardFocus() const override;
 
 	virtual FReply OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent);
 	virtual FReply OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent);
-
 };

@@ -12,6 +12,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryButtonClicked);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnInventoryButtonMouseEnter, const FGeometry&, geometry, const FPointerEvent&, mouseEvent);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInventoryButtonMouseLeave, const FPointerEvent&, mouseEvent);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnInventoryButtonSelection, const FGeometry&, geometry, const FKeyEvent&, keyEvent);
 
 
 /**
@@ -68,6 +69,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnInventoryButtonMouseLeave OnMouseLeave;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnInventoryButtonSelection OnSelection;
+
 public:
 	virtual TSharedRef<SWidget> RebuildWidget() override;
 
@@ -102,6 +106,8 @@ protected:
 	void SlateHandleMouseEnter(const FGeometry& geometry, const FPointerEvent& mouseEvent);
 
 	void SlateHandleMouseLeave(const FPointerEvent& mouseEvent);
+
+	void SlateHandleOnSelection(const FGeometry& geometry, const FKeyEvent& keyEvent);
 
 protected:
 

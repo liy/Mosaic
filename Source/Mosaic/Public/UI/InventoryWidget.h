@@ -19,7 +19,7 @@ public:
 	UInventoryWidget(const FObjectInitializer& objectInitializer);
 
 	// Container for slots, used for C++ only
-	class UUniformGridPanel* ButtonContainer;
+	class UWrapBox* ButtonContainer;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Custom)
 	bool IsActive;

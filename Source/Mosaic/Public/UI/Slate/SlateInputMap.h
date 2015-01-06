@@ -2,6 +2,13 @@
 
 #pragma once
 
+
+struct MOSAIC_API InputActions
+{
+	static const FName InventorySelection;
+};
+
+
 /**
  * 
  */
@@ -16,11 +23,11 @@ public:
 
 	~SlateInputMap();
 
-	bool IsValidActionKey(const FKey key, const FName actionName);
+	bool IsValidActionKey(const FName actionName, const FKey inputKey);
 	bool IsValidActionKey(const FKey key);
 private:
 	SlateInputMap();
 
 	/** Map of Action Name to details about the keys mapped to that action */
-	TMap<FKey, FName>* Map;
+	TMap<FName, TArray<FKey>>* Map;
 };

@@ -3,6 +3,7 @@
 //File: MyUIWidget.cpp
 
 #include "Mosaic.h"
+#include "SlateInputMap.h"
 #include "SInventoryButton.h"
 
 #define LOCTEXT_NAMESPACE "Mosaic"
@@ -148,14 +149,24 @@ void SInventoryButton::SetOnMouseLeave(FOnMouseLeave InOnMouseLeave)
 	OnMouseLeaveDelegate = InOnMouseLeave;
 }
 
+void SInventoryButton::SetOnSelection(FOnSelection onSelection)
+{
+	OnSelectionDelegate = onSelection;
+}
+
 bool SInventoryButton::SupportsKeyboardFocus() const
 {
 	return true;
 }
 
-FReply SInventoryButton::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+FReply SInventoryButton::OnKeyDown(const FGeometry& geometry, const FKeyEvent& keyEvent)
 {
-	return FReply::Handled();
+	if (SlateInputMap::GetInstance().IsValidActionKey(InputActions::InventorySelection, keyEvent.GetKey()))
+	{
+		OnSelectionDelegate.ExecuteIfBound(geometry, keyEvent);
+		return FReply::Handled();
+	}
+	return FReply::Unhandled();
 }
 
 FReply SInventoryButton::OnKeyUp(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)

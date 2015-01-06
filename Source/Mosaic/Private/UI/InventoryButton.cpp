@@ -42,6 +42,7 @@ void UInventoryButton::SynchronizeProperties()
 	SlateButton->SetOnClicked(BIND_UOBJECT_DELEGATE(FOnClicked, SlateHandleClicked));
 	SlateButton->SetOnMouseEnter(BIND_UOBJECT_DELEGATE(FOnMouseEnter, SlateHandleMouseEnter));
 	SlateButton->SetOnMouseLeave(BIND_UOBJECT_DELEGATE(FOnMouseLeave, SlateHandleMouseLeave));
+	SlateButton->SetOnSelection(BIND_UOBJECT_DELEGATE(FOnSelection, SlateHandleOnSelection));
 }
 
 void UInventoryButton::SetBrushFromTextureForImage(UTexture2D* Texture)
@@ -125,6 +126,11 @@ void UInventoryButton::SlateHandleMouseEnter(const FGeometry& geometry, const FP
 void UInventoryButton::SlateHandleMouseLeave(const FPointerEvent& mouseEvent)
 {
 	OnMouseLeave.Broadcast(mouseEvent);
+}
+
+void UInventoryButton::SlateHandleOnSelection(const FGeometry& geometry, const FKeyEvent& keyEvent)
+{
+	OnSelection.Broadcast(geometry, keyEvent);
 }
 
 

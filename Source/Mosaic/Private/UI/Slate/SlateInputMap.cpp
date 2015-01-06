@@ -4,9 +4,15 @@
 #include "GameFramework/PlayerInput.h"
 #include "SlateInputMap.h"
 
-SlateInputMap::SlateInputMap() : Map(new TMap<FKey, FName>())
+const FName InputActions::InventorySelection("InventorySelection");
+
+
+SlateInputMap::SlateInputMap() : Map(new TMap<FName, TArray<FKey>>())
 {
-	Map->Add(FKey(), FName(""));
+	// Inventory selection
+	TArray<FKey> selectionKeys = TArray<FKey>();
+	selectionKeys.Add(EKeys::Gamepad_LeftShoulder);
+	Map->Add(InputActions::InventorySelection, selectionKeys);
 }
 
 SlateInputMap::~SlateInputMap()
@@ -14,16 +20,15 @@ SlateInputMap::~SlateInputMap()
 	Map->Reset();
 }
 
-bool SlateInputMap::IsValidActionKey(const FKey key, const FName actionName)
+bool SlateInputMap::IsValidActionKey(const FName actionName, const FKey inputKey)
 {
-	const FName* name = Map->Find(key);
-	return *name == actionName;
-}
-
-bool SlateInputMap::IsValidActionKey(const FKey key)
-{
-	if (Map->Find(key))
-		return true;
-	else
-		return false;
+	const TArray<FKey>* keys = Map->Find(actionName);
+	for (int i = 0; i < keys->Num(); ++i)
+	{
+		if ((*keys)[i] == inputKey)
+		{
+			return true;
+		}
+	}
+	return false;
 }
