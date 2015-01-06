@@ -7,22 +7,22 @@
 const FName InputActions::InventorySelection("InventorySelection");
 
 
-SlateInputMap::SlateInputMap() : Map(new TMap<FName, TArray<FKey>>())
+SlateInputMap::SlateInputMap() : ActionKeyMap(new TMap<FName, TArray<FKey>>())
 {
 	// Inventory selection
 	TArray<FKey> selectionKeys = TArray<FKey>();
 	selectionKeys.Add(EKeys::Gamepad_LeftShoulder);
-	Map->Add(InputActions::InventorySelection, selectionKeys);
+	ActionKeyMap->Add(InputActions::InventorySelection, selectionKeys);
 }
 
 SlateInputMap::~SlateInputMap()
 {
-	Map->Reset();
+	ActionKeyMap->Reset();
 }
 
 bool SlateInputMap::IsValidActionKey(const FName actionName, const FKey inputKey)
 {
-	const TArray<FKey>* keys = Map->Find(actionName);
+	const TArray<FKey>* keys = ActionKeyMap->Find(actionName);
 	for (int i = 0; i < keys->Num(); ++i)
 	{
 		if ((*keys)[i] == inputKey)

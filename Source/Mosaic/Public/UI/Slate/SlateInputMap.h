@@ -24,10 +24,9 @@ public:
 	~SlateInputMap();
 
 	bool IsValidActionKey(const FName actionName, const FKey inputKey);
-	bool IsValidActionKey(const FKey key);
 private:
 	SlateInputMap();
 
 	/** Map of Action Name to details about the keys mapped to that action */
-	TMap<FName, TArray<FKey>>* Map;
+	TMap<FName, TArray<FKey>>* ActionKeyMap;
 };
