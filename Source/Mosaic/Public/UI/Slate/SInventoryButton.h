@@ -10,7 +10,7 @@ DECLARE_DELEGATE_TwoParams(FOnMouseEnter, const FGeometry&, const FPointerEvent&
 DECLARE_DELEGATE_OneParam(FOnMouseLeave, const FPointerEvent&);
 DECLARE_DELEGATE_TwoParams(FOnSelection, const FGeometry&, const FKeyEvent&);
 
-class SInventoryButton : public SCompoundWidget
+class MOSAIC_API SInventoryButton : public SCompoundWidget
 {
 	SLATE_BEGIN_ARGS(SInventoryButton) :
 		// Setup default values
