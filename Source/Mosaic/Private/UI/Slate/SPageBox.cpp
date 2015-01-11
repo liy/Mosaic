@@ -131,12 +131,24 @@ void SPageBox::ClearChildren()
 
 void SPageBox::Tick(const FGeometry& geometry, const double currentTime, const float deltaTime)
 {
-	// Do scrolling here?
+	// The buildin focus code and drawing example is in SlateApplication.cpp, search for "FocusRectangle".
+	// I was thinking about using focused item's geometry information to calculate the scroll offset amount.
+	// But in fact, if the item is outside of the visiable area(outside of scroll box visible area), you will never be able
+	// get the item to focus.
+	// So! You will never be able to use buildin focus method to do paging correctly.
+	//
+	// Idea 2 will be manually code a focus and navigation function in a base class, which every single Mosaic widget extends.
+	// So we know which item is focused here, and where it is, index, etc; in short it should providing all information needed
+	// for caclulating the offset.
+	//
+	// Idea 3 in stead of using scan box(focus) control the paging, we need dedicated gamepad button to control the paging. In this
+	// case, all the focus issue will go away. But the disadvantage of this method is losing certain buttons on gamepad when menu
+	// is on the viewport.
 	
+	// THIS WILL NEVER WORK, but it does give some other information might be useful for future development
 	TSharedPtr<SWidget> focusedWidget = FSlateApplicationBase::Get().GetKeyboardFocusedWidget();
 	FGeometry focusedGeometry = this->FindChildGeometry(geometry, focusedWidget.ToSharedRef());
 	FSlateRect focusedRect = TransformRect(focusedGeometry.GetAccumulatedRenderTransform(), FSlateRect(FVector2D(0.0f, 0.0f), focusedGeometry.GetLocalSize()));
-	
 	FSlateRect pageRect = TransformRect(geometry.GetAccumulatedRenderTransform(), FSlateRect(FVector2D(0.0f, 0.0f), geometry.GetLocalSize()));
 	if (!FSlateRect::IsRectangleContained(pageRect, focusedRect)){
 		// keep scroll towards focused widget

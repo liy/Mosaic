@@ -3,6 +3,21 @@
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
+UENUM(BlueprintType)
+enum class EInputAction : uint8
+{
+	Light,
+	Medium,
+	Heavy,
+	Defence,
+	Action,
+	Up,
+	Left,
+	Right,
+	Down,
+	Jump
+};
+
 UCLASS(config=Game)
 class ACharacterBase : public ACharacter
 {
@@ -46,7 +61,7 @@ protected:
 public:
 	ACharacterBase(const FObjectInitializer& objectInitializer);
 
-	UPROPERTY(VisibleAnywhere, BLueprintReadOnly, Category=Action)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Action)
 	class USphereComponent* CollectionSphere;
 
 	// Maximum number of jump can performed in the air.
@@ -72,4 +87,51 @@ private:
 	 * Handle the character orientation
 	 **/
 	void OrientationProcess(float value);
+
+private:
+
+	// action related
+	void LightPressed();
+	void LightReleased();
+
+	void MediumPressed();
+	void MediumReleased();
+
+	void HeavyPressed();
+	void HeavyReleased();
+
+	void DefencePressed();
+	void DefenceReleased();
+
+	void JumpPressed();
+	void JumpReleased();
+
+	void ActionPressed();
+	void ActionReleased();
+
+	// every time input action is added, delay reset timer
+	void PushInputAction(EInputAction action);
+
+	void ResetInputStack();
+
+public:
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category=Action)
+	float ResetDelay = 0.01f;
+
+	UPROPERTY()
+	TArray<EInputAction> ActionStack;
+
+	// 
+	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnActionInput"))
+	virtual void ReceiveOnActionInput(EInputAction action, EInputEvent event);
+	virtual void OnActionInput(EInputAction action, EInputEvent event = EInputEvent::IE_Pressed);
+
+	//UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnActionInput"))
+	//virtual void ReceiveOnActionInput(EInputAction action, EInputEvent event);
+	//virtual void OnActionInput(EInputAction action, EInputEvent event = EInputEvent::IE_Pressed);
+
+	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnTriggerAction"))
+	virtual void ReceiveOnTriggerAction();
+	virtual void OnTriggerAction();
 };
