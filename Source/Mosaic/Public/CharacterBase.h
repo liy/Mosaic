@@ -109,6 +109,18 @@ private:
 	void ActionPressed();
 	void ActionReleased();
 
+	void UpPressed();
+	void UpReleased();
+
+	void DownPressed();
+	void DownReleased();
+
+	void LeftPressed();
+	void LeftReleased();
+
+	void RightPressed();
+	void RightReleased();
+
 	// every time input action is added, delay reset timer
 	void PushInputAction(EInputAction action);
 
@@ -116,8 +128,9 @@ private:
 
 public:
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category=Action)
-	float ResetDelay = 0.01f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Action)
+	float ResetDelay = 0.1f;
+	//float ResetDelay = 0.01f;
 
 	UPROPERTY()
 	TArray<EInputAction> ActionStack;

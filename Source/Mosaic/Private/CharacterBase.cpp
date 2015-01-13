@@ -91,18 +91,19 @@ void ACharacterBase::SetupPlayerInputComponent(class UInputComponent* inputCompo
 	inputComponent->BindAction("Defence", IE_Released, this, &ACharacterBase::DefenceReleased);
 	inputComponent->BindAction("Jump", IE_Pressed, this, &ACharacterBase::JumpPressed);
 	inputComponent->BindAction("Jump", IE_Released, this, &ACharacterBase::JumpReleased);
+	inputComponent->BindAction("UpInput", IE_Pressed, this, &ACharacterBase::UpPressed);
+	inputComponent->BindAction("UpInput", IE_Released, this, &ACharacterBase::UpReleased);
+	// not sure why name action as "Down" does not work properly on press?!
+	inputComponent->BindAction("DownInput", IE_Pressed, this, &ACharacterBase::DownPressed);
+	inputComponent->BindAction("DownInput", IE_Released, this, &ACharacterBase::DownReleased);
+	inputComponent->BindAction("LeftInput", IE_Pressed, this, &ACharacterBase::LeftPressed);
+	inputComponent->BindAction("LeftInput", IE_Released, this, &ACharacterBase::LeftReleased);
+	inputComponent->BindAction("RightInput", IE_Pressed, this, &ACharacterBase::RightPressed);
+	inputComponent->BindAction("RightInput", IE_Released, this, &ACharacterBase::RightReleased);
 }
 
 void ACharacterBase::MoveRight(float value)
 {
-	if (value < 0){
-		OnActionInput(EInputAction::Left);
-	}
-	else if (value > 0)
-	{
-		OnActionInput(EInputAction::Right);
-	}
-
 	// add movement in that direction
 	AddMovementInput(FVector(0.f,-1.f,0.f), value);
 	// update custom orientation of the character depending on the move direction
@@ -111,14 +112,6 @@ void ACharacterBase::MoveRight(float value)
 
 void ACharacterBase::MoveUp(float value)
 {
-	if (value < 0){
-		OnActionInput(EInputAction::Down);
-	}
-	else if (value > 0)
-	{
-		OnActionInput(EInputAction::Up);
-	}
-
 	AddMovementInput(FVector(-1.0f, 0.0f, 0.0f), value);
 }
 
@@ -148,10 +141,6 @@ void ACharacterBase::OnMovementModeChanged(EMovementMode prevMovementMode, uint8
 
 void ACharacterBase::Jump()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("JumpFirst"));
-
-	OnActionInput(EInputAction::Jump, EInputEvent::IE_Pressed);
-
 	// If character is falling, check whether it is allowed to do extra jumps
 	// Special case: if we allow double jump, when character walks off the edge without jump, only 1 jump is allowed.
 	if (GetCharacterMovement()->IsFalling())
@@ -257,17 +246,59 @@ void ACharacterBase::ActionReleased()
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("ActionReleased"));
 }
 
+void ACharacterBase::UpPressed()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("UpPressed"));
+	OnActionInput(EInputAction::Up);
+}
+
+void ACharacterBase::UpReleased()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("UpReleased"));
+}
+
+void ACharacterBase::DownPressed()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("DownPressed"));
+	OnActionInput(EInputAction::Down);
+}
+
+void ACharacterBase::DownReleased()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("DownReleased"));
+}
+
+void ACharacterBase::LeftPressed()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("LeftPressed"));
+	OnActionInput(EInputAction::Left);
+}
+
+void ACharacterBase::LeftReleased()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("LeftReleased"));
+}
+
+void ACharacterBase::RightPressed()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("RightPressed"));
+	OnActionInput(EInputAction::Right);
+}
+
+void ACharacterBase::RightReleased()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("RightReleased"));
+}
+
+
 void ACharacterBase::OnActionInput(EInputAction action, EInputEvent event)
 {
 	PushInputAction(action);
 
 	// TODO: Check the stack for triggering action pattern
-	for (int i = 0; i < ActionStack.Num()-1; ++i)
+	if (ActionStack.Num() == 4 && ActionStack.Contains(EInputAction::Light) && ActionStack.Contains(EInputAction::Medium) && ActionStack.Contains(EInputAction::Down) && ActionStack.Contains(EInputAction::Right))
 	{
-		if ((ActionStack[i] == EInputAction::Light && ActionStack[i+1] == EInputAction::Medium) || (ActionStack[i] == EInputAction::Medium && ActionStack[i+1] == EInputAction::Light))
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, TEXT("!!"));
-		}
+		GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, TEXT("!!"));
 	}
 }
 
