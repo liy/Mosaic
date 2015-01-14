@@ -63,22 +63,11 @@ ACharacterBase::ACharacterBase(const FObjectInitializer& objectInitializer)
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	GetWorldTimerManager().SetTimer(this, &ACharacterBase::ResetInputStack, ResetDelay, true);
 }
 
 void ACharacterBase::SetupPlayerInputComponent(class UInputComponent* inputComponent)
 {
-	// set up gameplay key bindings
-	inputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	inputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	// fire collect pickups
-	inputComponent->BindAction("Action", IE_Pressed, this, &ACharacterBase::CollectPickUps);
-
-	inputComponent->BindAxis("MoveRight", this, &ACharacterBase::MoveRight);
-	inputComponent->BindAxis("MoveUp", this, &ACharacterBase::MoveUp);
-
-	// fighting related
+	// fighting related, keep them before user movement control, since fighting control might cancel the movement(I'll ignore this feature for now).
 	inputComponent->BindAction("Action", IE_Pressed, this, &ACharacterBase::ActionPressed);
 	inputComponent->BindAction("Action", IE_Released, this, &ACharacterBase::ActionReleased);
 	inputComponent->BindAction("Light", IE_Pressed, this, &ACharacterBase::LightPressed);
@@ -100,6 +89,13 @@ void ACharacterBase::SetupPlayerInputComponent(class UInputComponent* inputCompo
 	inputComponent->BindAction("LeftInput", IE_Released, this, &ACharacterBase::LeftReleased);
 	inputComponent->BindAction("RightInput", IE_Pressed, this, &ACharacterBase::RightPressed);
 	inputComponent->BindAction("RightInput", IE_Released, this, &ACharacterBase::RightReleased);
+
+	// movement related
+	inputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	inputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	inputComponent->BindAction("Action", IE_Pressed, this, &ACharacterBase::CollectPickUps);
+	inputComponent->BindAxis("MoveRight", this, &ACharacterBase::MoveRight);
+	inputComponent->BindAxis("MoveUp", this, &ACharacterBase::MoveUp);
 }
 
 void ACharacterBase::MoveRight(float value)
@@ -141,6 +137,7 @@ void ACharacterBase::OnMovementModeChanged(EMovementMode prevMovementMode, uint8
 
 void ACharacterBase::Jump()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Jump"));
 	// If character is falling, check whether it is allowed to do extra jumps
 	// Special case: if we allow double jump, when character walks off the edge without jump, only 1 jump is allowed.
 	if (GetCharacterMovement()->IsFalling())
@@ -226,7 +223,7 @@ void ACharacterBase::DefenceReleased()
 
 void ACharacterBase::JumpPressed()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("JumpPressed"));
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("JumpPressed"));
 	OnActionInput(EInputAction::Jump);
 }
 
@@ -248,7 +245,7 @@ void ACharacterBase::ActionReleased()
 
 void ACharacterBase::UpPressed()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("UpPressed"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("UpPressed"));
 	OnActionInput(EInputAction::Up);
 }
 
@@ -259,13 +256,13 @@ void ACharacterBase::UpReleased()
 
 void ACharacterBase::DownPressed()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("DownPressed"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("DownPressed"));
 	OnActionInput(EInputAction::Down);
 }
 
 void ACharacterBase::DownReleased()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("DownReleased"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("DownReleased"));
 }
 
 void ACharacterBase::LeftPressed()
@@ -281,7 +278,7 @@ void ACharacterBase::LeftReleased()
 
 void ACharacterBase::RightPressed()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("RightPressed"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("RightPressed"));
 	OnActionInput(EInputAction::Right);
 }
 
@@ -296,7 +293,7 @@ void ACharacterBase::OnActionInput(EInputAction action, EInputEvent event)
 	PushInputAction(action);
 
 	// TODO: Check the stack for triggering action pattern
-	if (ActionStack.Num() == 4 && ActionStack.Contains(EInputAction::Light) && ActionStack.Contains(EInputAction::Medium) && ActionStack.Contains(EInputAction::Down) && ActionStack.Contains(EInputAction::Right))
+	if (ActionSet.Contains(EInputAction::Light) && ActionSet.Contains(EInputAction::Medium) && ActionSet.Contains(EInputAction::Down))
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, TEXT("!!"));
 	}
@@ -304,16 +301,24 @@ void ACharacterBase::OnActionInput(EInputAction action, EInputEvent event)
 
 void ACharacterBase::PushInputAction(EInputAction action)
 {
-	// Delay stack reset timer
-	GetWorldTimerManager().SetTimer(this, &ACharacterBase::ResetInputStack, ResetDelay, true);
+	// Delay data reset timer
+	GetWorldTimerManager().SetTimer(this, &ACharacterBase::ResetInputStack, ResetInputStackInterval);
+	GetWorldTimerManager().SetTimer(this, &ACharacterBase::ResetInputSet, ResetInputSetInterval);
 
 	ActionStack.Add(action);
+	ActionSet.Add(action);
 }
 
 void ACharacterBase::ResetInputStack()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ResetInputStack"));
 	ActionStack.Reset();
+}
+
+void ACharacterBase::ResetInputSet()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ResetInputSet"));
+	ActionSet.Empty();
 }
 
 // Need a typed paramter to determin which action to trigger

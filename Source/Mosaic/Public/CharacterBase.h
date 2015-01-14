@@ -18,6 +18,13 @@ enum class EInputAction : uint8
 	Jump
 };
 
+// Implement TSet::GetTypeHash make sure TSet work properly
+// https://answers.unrealengine.com/questions/135766/do-tmap-and-rpcs-support-enum-classes.html
+inline uint8 GetTypeHash(const EInputAction A)
+{
+	return (uint8)A;
+}
+
 UCLASS(config=Game)
 class ACharacterBase : public ACharacter
 {
@@ -124,16 +131,24 @@ private:
 	// every time input action is added, delay reset timer
 	void PushInputAction(EInputAction action);
 
+	void ResetInputSet();
+
 	void ResetInputStack();
 
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Action)
-	float ResetDelay = 0.1f;
-	//float ResetDelay = 0.01f;
+	float ResetInputSetInterval = 0.01f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Action)
+	float ResetInputStackInterval = 0.03f;
+
+	// If you expect a sequence of inputs, use the stack
 	UPROPERTY()
 	TArray<EInputAction> ActionStack;
+
+	// If you expect a simultaneous inputs, use the set.
+	TSet<EInputAction> ActionSet;
 
 	// 
 	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnActionInput"))
