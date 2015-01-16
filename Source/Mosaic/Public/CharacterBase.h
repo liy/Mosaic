@@ -131,35 +131,26 @@ private:
 	// every time input action is added, delay reset timer
 	void PushInputAction(EInputAction action);
 
-	void ResetInputSet();
-
-	void ResetInputStack();
-
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Action)
 	float ResetInputSetInterval = 0.01f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Action)
-	float ResetInputStackInterval = 0.03f;
-
-	// If you expect a sequence of inputs, use the stack
-	UPROPERTY()
-	TArray<EInputAction> ActionStack;
-
 	// If you expect a simultaneous inputs, use the set.
 	TSet<EInputAction> ActionSet;
 
 	// 
-	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnActionInput"))
+	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnActionInput"), Category=Action)
 	virtual void ReceiveOnActionInput(EInputAction action, EInputEvent event);
 	virtual void OnActionInput(EInputAction action, EInputEvent event = EInputEvent::IE_Pressed);
 
-	//UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnActionInput"))
-	//virtual void ReceiveOnActionInput(EInputAction action, EInputEvent event);
-	//virtual void OnActionInput(EInputAction action, EInputEvent event = EInputEvent::IE_Pressed);
-
-	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnTriggerAction"))
+	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnTriggerAction"), Category = Action)
 	virtual void ReceiveOnTriggerAction();
 	virtual void OnTriggerAction();
+
+	UFUNCTION(BlueprintNativeEvent, Category = Action)
+	void ResetInputSet();
+
+	UFUNCTION(BlueprintCallable, Category=Action)
+	bool CanActionPerform(TArray<TEnumAsByte<EInputAction>> inputActions);
 };

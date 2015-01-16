@@ -291,6 +291,7 @@ void ACharacterBase::RightReleased()
 void ACharacterBase::OnActionInput(EInputAction action, EInputEvent event)
 {
 	PushInputAction(action);
+	ReceiveOnActionInput(action, event);
 
 	// TODO: Check the stack for triggering action pattern
 	if (ActionSet.Contains(EInputAction::Light) && ActionSet.Contains(EInputAction::Medium) && ActionSet.Contains(EInputAction::Down))
@@ -302,20 +303,12 @@ void ACharacterBase::OnActionInput(EInputAction action, EInputEvent event)
 void ACharacterBase::PushInputAction(EInputAction action)
 {
 	// Delay data reset timer
-	GetWorldTimerManager().SetTimer(this, &ACharacterBase::ResetInputStack, ResetInputStackInterval);
 	GetWorldTimerManager().SetTimer(this, &ACharacterBase::ResetInputSet, ResetInputSetInterval);
 
-	ActionStack.Add(action);
 	ActionSet.Add(action);
 }
 
-void ACharacterBase::ResetInputStack()
-{
-	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ResetInputStack"));
-	ActionStack.Reset();
-}
-
-void ACharacterBase::ResetInputSet()
+void ACharacterBase::ResetInputSet_Implementation()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ResetInputSet"));
 	ActionSet.Empty();
@@ -325,4 +318,16 @@ void ACharacterBase::ResetInputSet()
 void ACharacterBase::OnTriggerAction()
 {
 
+}
+
+bool ACharacterBase::CanActionPerform(TArray<TEnumAsByte<EInputAction>> inputActions)
+{
+	for (EInputAction actionInput : inputActions)
+	{
+		if (!ActionSet.Contains(actionInput))
+		{
+			return false;
+		}
+	}
+	return true;
 }
