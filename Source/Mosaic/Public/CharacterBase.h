@@ -4,7 +4,7 @@
 #include "CharacterBase.generated.h"
 
 UENUM(BlueprintType)
-enum class EInputAction : uint8
+enum class EInputType : uint8
 {
 	Light,
 	Medium,
@@ -20,7 +20,7 @@ enum class EInputAction : uint8
 
 // Implement TSet::GetTypeHash make sure TSet work properly
 // https://answers.unrealengine.com/questions/135766/do-tmap-and-rpcs-support-enum-classes.html
-inline uint8 GetTypeHash(const EInputAction A)
+inline uint8 GetTypeHash(const EInputType A)
 {
 	return (uint8)A;
 }
@@ -129,28 +129,43 @@ private:
 	void RightReleased();
 
 	// every time input action is added, delay reset timer
-	void PushInputAction(EInputAction action);
+	void PushInputAction(EInputType input);
 
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Action)
 	float ResetInputSetInterval = 0.01f;
 
-	// If you expect a simultaneous inputs, use the set.
-	TSet<EInputAction> ActionSet;
-
 	// 
-	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnActionInput"), Category=Action)
-	virtual void ReceiveOnActionInput(EInputAction action, EInputEvent event);
-	virtual void OnActionInput(EInputAction action, EInputEvent event = EInputEvent::IE_Pressed);
+	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnInput"), Category=Action)
+	virtual void ReceiveOnInput(EInputType action, EInputEvent event);
+	virtual void OnInput(EInputType action, EInputEvent event = EInputEvent::IE_Pressed);
 
-	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnTriggerAction"), Category = Action)
-	virtual void ReceiveOnTriggerAction();
-	virtual void OnTriggerAction();
-
-	UFUNCTION(BlueprintNativeEvent, Category = Action)
+	UFUNCTION(BlueprintNativeEvent, Category=Action)
 	void ResetInputSet();
 
-	UFUNCTION(BlueprintCallable, Category=Action)
-	bool CanActionPerform(TArray<TEnumAsByte<EInputAction>> inputActions);
+	TSet<EInputType> GetInputSet();
+
+	UFUNCTION(BlueprintCallable, Category=Skill)
+	class ASkill* GetSkill(FName name);
+
+	UFUNCTION(BlueprintCallable, Category=Skill)
+	void AddSkill(TSubclassOf<ASkill> skillClass);
+
+	UFUNCTION(BlueprintCallable, Category = Skill)
+	void RemoveSkill(class ASkill* skill);
+
+	UFUNCTION(BlueprintCallable, meta = (FriendlyName = "RemoveSkill"), Category = Skill)
+	ASkill* RemoveSkillByName(FName name);
+
+	UFUNCTION(BlueprintCallable, Category = Skill)
+	bool CanTrigger(FName skillName);
+
+protected:
+
+	// Contains current inputs
+	TSet<EInputType> InputSet;
+
+	// Contains skills
+	TMap<FName, class ASkill*> SkillMap;
 };

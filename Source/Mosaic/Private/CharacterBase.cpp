@@ -5,6 +5,7 @@
 #include "Pickup.h"
 #include "Inventory.h"
 #include "CharacterController.h"
+#include "Skill.h"
 
 ACharacterBase::ACharacterBase(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)
@@ -180,7 +181,7 @@ void ACharacterBase::LightPressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("LightPressed"));
 
-	OnActionInput(EInputAction::Light);
+	OnInput(EInputType::Light);
 }
 
 void ACharacterBase::LightReleased()
@@ -191,7 +192,7 @@ void ACharacterBase::LightReleased()
 void ACharacterBase::MediumPressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("MediumPressed"));
-	OnActionInput(EInputAction::Medium);
+	OnInput(EInputType::Medium);
 }
 
 void ACharacterBase::MediumReleased()
@@ -202,7 +203,7 @@ void ACharacterBase::MediumReleased()
 void ACharacterBase::HeavyPressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("HeavyPressed"));
-	OnActionInput(EInputAction::Heavy);
+	OnInput(EInputType::Heavy);
 }
 
 void ACharacterBase::HeavyReleased()
@@ -213,7 +214,7 @@ void ACharacterBase::HeavyReleased()
 void ACharacterBase::DefencePressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("DefencePressed"));
-	OnActionInput(EInputAction::Defence);
+	OnInput(EInputType::Defence);
 }
 
 void ACharacterBase::DefenceReleased()
@@ -224,7 +225,7 @@ void ACharacterBase::DefenceReleased()
 void ACharacterBase::JumpPressed()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("JumpPressed"));
-	OnActionInput(EInputAction::Jump);
+	OnInput(EInputType::Jump);
 }
 
 void ACharacterBase::JumpReleased()
@@ -235,7 +236,7 @@ void ACharacterBase::JumpReleased()
 void ACharacterBase::ActionPressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("ActionPressed"));
-	OnActionInput(EInputAction::Action);
+	OnInput(EInputType::Action);
 }
 
 void ACharacterBase::ActionReleased()
@@ -246,7 +247,7 @@ void ACharacterBase::ActionReleased()
 void ACharacterBase::UpPressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("UpPressed"));
-	OnActionInput(EInputAction::Up);
+	OnInput(EInputType::Up);
 }
 
 void ACharacterBase::UpReleased()
@@ -257,7 +258,7 @@ void ACharacterBase::UpReleased()
 void ACharacterBase::DownPressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("DownPressed"));
-	OnActionInput(EInputAction::Down);
+	OnInput(EInputType::Down);
 }
 
 void ACharacterBase::DownReleased()
@@ -268,7 +269,7 @@ void ACharacterBase::DownReleased()
 void ACharacterBase::LeftPressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("LeftPressed"));
-	OnActionInput(EInputAction::Left);
+	OnInput(EInputType::Left);
 }
 
 void ACharacterBase::LeftReleased()
@@ -279,7 +280,7 @@ void ACharacterBase::LeftReleased()
 void ACharacterBase::RightPressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("RightPressed"));
-	OnActionInput(EInputAction::Right);
+	OnInput(EInputType::Right);
 }
 
 void ACharacterBase::RightReleased()
@@ -288,46 +289,73 @@ void ACharacterBase::RightReleased()
 }
 
 
-void ACharacterBase::OnActionInput(EInputAction action, EInputEvent event)
+void ACharacterBase::OnInput(EInputType action, EInputEvent event)
 {
 	PushInputAction(action);
-	ReceiveOnActionInput(action, event);
-
-	// TODO: Check the stack for triggering action pattern
-	if (ActionSet.Contains(EInputAction::Light) && ActionSet.Contains(EInputAction::Medium) && ActionSet.Contains(EInputAction::Down))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, TEXT("!!"));
-	}
+	ReceiveOnInput(action, event);
 }
 
-void ACharacterBase::PushInputAction(EInputAction action)
+void ACharacterBase::PushInputAction(EInputType action)
 {
 	// Delay data reset timer
 	GetWorldTimerManager().SetTimer(this, &ACharacterBase::ResetInputSet, ResetInputSetInterval);
 
-	ActionSet.Add(action);
+	InputSet.Add(action);
 }
 
 void ACharacterBase::ResetInputSet_Implementation()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ResetInputSet"));
-	ActionSet.Empty();
+	InputSet.Empty();
 }
 
-// Need a typed paramter to determin which action to trigger
-void ACharacterBase::OnTriggerAction()
+TSet<EInputType> ACharacterBase::GetInputSet()
 {
-
+	return InputSet;
 }
 
-bool ACharacterBase::CanActionPerform(TArray<TEnumAsByte<EInputAction>> inputActions)
+ASkill* ACharacterBase::GetSkill(FName name)
 {
-	for (EInputAction actionInput : inputActions)
+	return SkillMap[name];
+}
+
+void ACharacterBase::AddSkill(TSubclassOf<ASkill> skillClass)
+{
+	if (skillClass){
+		ASkill* skill = ConstructObject<ASkill>(skillClass, this);
+		SkillMap.Add(skill->Name, skill);
+	}
+}
+
+void ACharacterBase::RemoveSkill(ASkill* skill)
+{
+	SkillMap.Remove(skill->Name);
+}
+
+ASkill* ACharacterBase::RemoveSkillByName(FName name)
+{
+	ASkill* skill = SkillMap[name];
+	SkillMap.Remove(name);
+	return skill;
+}
+
+bool ACharacterBase::CanTrigger(FName name)
+{
+	USkill* skill = SkillMap[name];
+
+	// The number of inputs does not match, fail the check
+	if (skill->TriggerInputs.Num() != InputSet.Num())
 	{
-		if (!ActionSet.Contains(actionInput))
+		return false;
+	}
+
+	for (EInputType input : skill->TriggerInputs)
+	{
+		if (!InputSet.Contains(input))
 		{
 			return false;
 		}
 	}
+
 	return true;
 }
