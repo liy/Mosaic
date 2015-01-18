@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "CharacterBase.generated.h"
 
+
 UENUM(BlueprintType)
 enum class EInputType : uint8
 {
@@ -24,6 +25,23 @@ inline uint8 GetTypeHash(const EInputType A)
 {
 	return (uint8)A;
 }
+
+USTRUCT(BlueprintType)
+struct FSkill
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	// The name of the skill
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input)
+	FName Name;
+
+	// The inputs triggers this skill
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input)
+	TArray<EInputType> TriggerInputs;
+};
+
 
 UCLASS(config=Game)
 class ACharacterBase : public ACharacter
@@ -147,16 +165,13 @@ public:
 	TSet<EInputType> GetInputSet();
 
 	UFUNCTION(BlueprintCallable, Category=Skill)
-	class ASkill* GetSkill(FName name);
+	FSkill& GetSkill(FName name);
 
 	UFUNCTION(BlueprintCallable, Category=Skill)
-	void AddSkill(TSubclassOf<ASkill> skillClass);
+	void AddSkill(FSkill inSkill);
 
-	UFUNCTION(BlueprintCallable, Category = Skill)
-	void RemoveSkill(class ASkill* skill);
-
-	UFUNCTION(BlueprintCallable, meta = (FriendlyName = "RemoveSkill"), Category = Skill)
-	ASkill* RemoveSkillByName(FName name);
+	UFUNCTION(BlueprintCallable, Category=Skill)
+	void RemoveSkill(FName name);
 
 	UFUNCTION(BlueprintCallable, Category = Skill)
 	bool CanTrigger(FName skillName);
@@ -167,5 +182,7 @@ protected:
 	TSet<EInputType> InputSet;
 
 	// Contains skills
-	TMap<FName, class ASkill*> SkillMap;
+	TMap<FName, FSkill> SkillMap;
+
+	bool TestGetterFunc();
 };

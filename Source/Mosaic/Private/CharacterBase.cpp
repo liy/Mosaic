@@ -5,7 +5,6 @@
 #include "Pickup.h"
 #include "Inventory.h"
 #include "CharacterController.h"
-#include "Skill.h"
 
 ACharacterBase::ACharacterBase(const FObjectInitializer& objectInitializer)
 	: Super(objectInitializer)
@@ -314,48 +313,45 @@ TSet<EInputType> ACharacterBase::GetInputSet()
 	return InputSet;
 }
 
-ASkill* ACharacterBase::GetSkill(FName name)
+FSkill& ACharacterBase::GetSkill(FName name)
 {
-	return SkillMap[name];
+	return *SkillMap.Find(name);
 }
 
-void ACharacterBase::AddSkill(TSubclassOf<ASkill> skillClass)
+void ACharacterBase::AddSkill(FSkill inSkill)
 {
-	if (skillClass){
-		ASkill* skill = ConstructObject<ASkill>(skillClass, this);
-		SkillMap.Add(skill->Name, skill);
-	}
+	SkillMap.Add(inSkill.Name, inSkill);
 }
 
-void ACharacterBase::RemoveSkill(ASkill* skill)
+void ACharacterBase::RemoveSkill(FName name)
 {
-	SkillMap.Remove(skill->Name);
-}
-
-ASkill* ACharacterBase::RemoveSkillByName(FName name)
-{
-	ASkill* skill = SkillMap[name];
 	SkillMap.Remove(name);
-	return skill;
 }
 
 bool ACharacterBase::CanTrigger(FName name)
 {
-	USkill* skill = SkillMap[name];
+	//FSkill skill = SkillMap[name];
 
-	// The number of inputs does not match, fail the check
-	if (skill->TriggerInputs.Num() != InputSet.Num())
-	{
-		return false;
-	}
+	FSkill* skill = SkillMap.Find(name);
 
-	for (EInputType input : skill->TriggerInputs)
-	{
-		if (!InputSet.Contains(input))
+	if (skill){
+		// The number of inputs does not match, fail the check
+		if (skill->TriggerInputs.Num() != InputSet.Num())
 		{
 			return false;
 		}
-	}
 
-	return true;
+		for (EInputType input : skill->TriggerInputs)
+		{
+			if (!InputSet.Contains(input))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+	else{
+		return false;
+	}
 }
