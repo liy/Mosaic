@@ -40,6 +40,9 @@ public:
 	// The inputs triggers this skill
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Input)
 	TArray<EInputType> TriggerInputs;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Skill")
+	bool CanTrigger = false;
 };
 
 
@@ -168,13 +171,14 @@ public:
 	FSkill& GetSkill(FName name);
 
 	UFUNCTION(BlueprintCallable, Category=Skill)
-	void AddSkill(FSkill inSkill);
+	void AddSkill(FSkill& inSkill);
 
 	UFUNCTION(BlueprintCallable, Category=Skill)
 	void RemoveSkill(FName name);
 
 	UFUNCTION(BlueprintCallable, Category = Skill)
 	bool CanTrigger(FName skillName);
+
 
 protected:
 
@@ -184,5 +188,18 @@ protected:
 	// Contains skills
 	TMap<FName, FSkill> SkillMap;
 
-	bool TestGetterFunc();
+	TArray<FSkill*> Skills;
+	
+	// Set the can trigger property of every skills to proper state
+	void UpdateSkillState();
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill Library")
+	FSkill DoublePunch;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill Library")
+	FSkill DashPunch;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill Library")
+	FSkill LowStrike;
 };

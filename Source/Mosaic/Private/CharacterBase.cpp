@@ -58,6 +58,33 @@ ACharacterBase::ACharacterBase(const FObjectInitializer& objectInitializer)
 	CollectionSphere = objectInitializer.CreateDefaultSubobject<USphereComponent>(this, TEXT("CollectionSphere"));
 	CollectionSphere->SetSphereRadius(100.0f);
 	CollectionSphere->AttachTo(RootComponent);
+
+
+	Skills.Reset(3);
+
+	// TODO: move the skills somewhere else.
+	DoublePunch.Name = FName("Double Punch");
+	DoublePunch.TriggerInputs.Init(2);
+	DoublePunch.TriggerInputs[0] = EInputType::Light;
+	DoublePunch.TriggerInputs[1] = EInputType::Medium;
+	//AddSkill(DoublePunch);
+	Skills.Add(&DoublePunch);
+
+	DashPunch.Name = FName("Dash Punch");
+	DashPunch.TriggerInputs.Init(3);
+	DashPunch.TriggerInputs[0] = EInputType::Right;
+	DashPunch.TriggerInputs[1] = EInputType::Light;
+	DashPunch.TriggerInputs[2] = EInputType::Medium;
+	//AddSkill(DashPunch);
+	Skills.Add(&DashPunch);
+
+	LowStrike.Name = FName("Low Strike");
+	LowStrike.TriggerInputs.Init(2);
+	LowStrike.TriggerInputs[0] = EInputType::Down;
+	LowStrike.TriggerInputs[1] = EInputType::Light;
+	//AddSkill(LowStrike);
+	Skills.Add(&LowStrike);
+
 }
 
 void ACharacterBase::BeginPlay()
@@ -300,12 +327,19 @@ void ACharacterBase::PushInputAction(EInputType action)
 	GetWorldTimerManager().SetTimer(this, &ACharacterBase::ResetInputSet, ResetInputSetInterval);
 
 	InputSet.Add(action);
+
+	UpdateSkillState();
 }
 
 void ACharacterBase::ResetInputSet_Implementation()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ResetInputSet"));
 	InputSet.Empty();
+
+	for (FSkill* s : Skills)
+	{
+		s->CanTrigger = false;
+	}
 }
 
 TSet<EInputType> ACharacterBase::GetInputSet()
@@ -318,7 +352,7 @@ FSkill& ACharacterBase::GetSkill(FName name)
 	return *SkillMap.Find(name);
 }
 
-void ACharacterBase::AddSkill(FSkill inSkill)
+void ACharacterBase::AddSkill(FSkill& inSkill)
 {
 	SkillMap.Add(inSkill.Name, inSkill);
 }
@@ -353,5 +387,50 @@ bool ACharacterBase::CanTrigger(FName name)
 	}
 	else{
 		return false;
+	}
+}
+
+void ACharacterBase::UpdateSkillState()
+{
+	//TArray<FName> keys;
+	//SkillMap.GetKeys(keys);
+	//for (FName name : keys)
+	//{
+	//	// Only set can trigger to true, the reset should be done by timer
+	//	if (CanTrigger(name)){
+	//		SkillMap.Find(name)->CanTrigger = true;
+
+	//		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::Printf(TEXT("%d"), DoublePunch.CanTrigger));
+	//		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, FString::Printf(TEXT("%d"), SkillMap.Find(name)->CanTrigger));
+	//	}
+	//}
+
+	//DoublePunch.CanTrigger = true;
+	//FSkill& s = *SkillMap.Find("Double Punch");
+
+	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::Printf(TEXT("%d"), DoublePunch.CanTrigger));
+	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, FString::Printf(TEXT("%d"), s.CanTrigger));
+
+	for (FSkill* s : Skills)
+	{
+		bool canTrigger = true;
+		if (s->TriggerInputs.Num() != InputSet.Num())
+		{
+			canTrigger = false;
+		}
+
+		for (EInputType input : s->TriggerInputs)
+		{
+			if (!InputSet.Contains(input))
+			{
+				canTrigger = false;
+				break;
+			}
+		}
+
+		if (canTrigger)
+		{
+			s->CanTrigger = true;
+		}
 	}
 }
