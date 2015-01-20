@@ -72,7 +72,7 @@ ACharacterBase::ACharacterBase(const FObjectInitializer& objectInitializer)
 
 	DashPunch.Name = FName("Dash Punch");
 	DashPunch.TriggerInputs.Init(3);
-	DashPunch.TriggerInputs[0] = EInputType::Right;
+	DashPunch.TriggerInputs[0] = EInputType::Forward;
 	DashPunch.TriggerInputs[1] = EInputType::Light;
 	DashPunch.TriggerInputs[2] = EInputType::Medium;
 	//AddSkill(DashPunch);
@@ -295,7 +295,14 @@ void ACharacterBase::DownReleased()
 void ACharacterBase::LeftPressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("LeftPressed"));
-	OnInput(EInputType::Left);
+	const FVector forwardVector = GetActorForwardVector();
+	if (forwardVector.Y > 0.0f)
+	{
+		OnInput(EInputType::Forward);
+	}
+	else if (forwardVector.Y < 0.0f){
+		OnInput(EInputType::Backward);
+	}
 }
 
 void ACharacterBase::LeftReleased()
@@ -305,8 +312,16 @@ void ACharacterBase::LeftReleased()
 
 void ACharacterBase::RightPressed()
 {
+	const FVector forwardVector = GetActorForwardVector();
+	if (forwardVector.Y < 0.0f)
+	{
+		OnInput(EInputType::Forward);
+	}
+	else if (forwardVector.Y > 0.0f){
+		OnInput(EInputType::Backward);
+	}
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("RightPressed"));
-	OnInput(EInputType::Right);
+	
 }
 
 void ACharacterBase::RightReleased()
@@ -323,12 +338,10 @@ void ACharacterBase::OnInput(EInputType action, EInputEvent event)
 
 void ACharacterBase::PushInputAction(EInputType action)
 {
-	// Delay data reset timer
-	GetWorldTimerManager().SetTimer(this, &ACharacterBase::ResetInputSet, ResetInputSetInterval);
-
 	InputSet.Add(action);
 
-	UpdateSkillState();
+	// Wait until all the inputs are sort of done, then update the skill state
+	GetWorldTimerManager().SetTimer(this, &ACharacterBase::UpdateSkillState, DelayUpdateSkillState);
 }
 
 void ACharacterBase::ResetInputSet_Implementation()
@@ -336,9 +349,9 @@ void ACharacterBase::ResetInputSet_Implementation()
 	//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Red, TEXT("ResetInputSet"));
 	InputSet.Empty();
 
-	for (FSkill* s : Skills)
+	for (FSkill* skill : Skills)
 	{
-		s->CanTrigger = false;
+		skill->CanTrigger = false;
 	}
 }
 
@@ -392,34 +405,15 @@ bool ACharacterBase::CanTrigger(FName name)
 
 void ACharacterBase::UpdateSkillState()
 {
-	//TArray<FName> keys;
-	//SkillMap.GetKeys(keys);
-	//for (FName name : keys)
-	//{
-	//	// Only set can trigger to true, the reset should be done by timer
-	//	if (CanTrigger(name)){
-	//		SkillMap.Find(name)->CanTrigger = true;
-
-	//		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::Printf(TEXT("%d"), DoublePunch.CanTrigger));
-	//		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, FString::Printf(TEXT("%d"), SkillMap.Find(name)->CanTrigger));
-	//	}
-	//}
-
-	//DoublePunch.CanTrigger = true;
-	//FSkill& s = *SkillMap.Find("Double Punch");
-
-	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::Printf(TEXT("%d"), DoublePunch.CanTrigger));
-	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, FString::Printf(TEXT("%d"), s.CanTrigger));
-
-	for (FSkill* s : Skills)
+	for (FSkill* skill : Skills)
 	{
 		bool canTrigger = true;
-		if (s->TriggerInputs.Num() != InputSet.Num())
+		if (skill->TriggerInputs.Num() != InputSet.Num())
 		{
 			canTrigger = false;
 		}
 
-		for (EInputType input : s->TriggerInputs)
+		for (EInputType input : skill->TriggerInputs)
 		{
 			if (!InputSet.Contains(input))
 			{
@@ -428,9 +422,20 @@ void ACharacterBase::UpdateSkillState()
 			}
 		}
 
+		// Only set skill CanTrigger to true if it is really possible to do so.
+		// If cannot trigger, DO NOT set it to false, since it is RestInputSet will be called to
+		// reset the trigger flag.
 		if (canTrigger)
 		{
-			s->CanTrigger = true;
+			skill->CanTrigger = true;
 		}
 	}
+
+	// After the skill trigger state is updated,
+	// We need a tiny delay to reset the trigger state to false.
+	// Inbetween this tiny gap, animation state machine should be able to pick up boolean and perform transition
+	GetWorldTimerManager().SetTimer(this, &ACharacterBase::ResetInputSet, DelayResetInput);
+
+	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::Printf(TEXT("%d"), DoublePunch.CanTrigger));
+	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, FString::Printf(TEXT("%d"), s.CanTrigger));
 }

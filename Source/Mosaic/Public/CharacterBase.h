@@ -16,7 +16,9 @@ enum class EInputType : uint8
 	Left,
 	Right,
 	Down,
-	Jump
+	Jump,
+	Forward,
+	Backward
 };
 
 // Implement TSet::GetTypeHash make sure TSet work properly
@@ -154,8 +156,11 @@ private:
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Action)
-	float ResetInputSetInterval = 0.01f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Input)
+	float DelayResetInput = 0.01f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input)
+	float DelayUpdateSkillState = 0.02f;
 
 	// 
 	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnInput"), Category=Action)
@@ -192,6 +197,7 @@ protected:
 	
 	// Set the can trigger property of every skills to proper state
 	void UpdateSkillState();
+
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill Library")
