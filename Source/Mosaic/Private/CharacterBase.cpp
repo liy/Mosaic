@@ -42,11 +42,9 @@ ACharacterBase::ACharacterBase(const FObjectInitializer& objectInitializer)
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-	
 
 
-	
-	
+
 
 	// Default max number of the jumps allowed in the air
 	MaxJumps = 2;
@@ -90,6 +88,9 @@ ACharacterBase::ACharacterBase(const FObjectInitializer& objectInitializer)
 void ACharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// By default facing right
+	SetActorRotation(FRotator(0.0f, 90.0f, 0.0f));
 }
 
 void ACharacterBase::SetupPlayerInputComponent(class UInputComponent* inputComponent)
@@ -143,11 +144,11 @@ void ACharacterBase::OrientationProcess(float value)
 	// Flip character facing direction
 	if (value > 0.0f)
 	{
-		this->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
+		this->SetActorRotation(FRotator(0.0f, -90.0f, 0.0f));
 	}
 	else if (value < 0.0f)
 	{
-		this->SetActorRotation(FRotator(0.0f, 180.0f, 0.0f));
+		this->SetActorRotation(FRotator(0.0f, 90.0f, 0.0f));
 	}
 }
 
