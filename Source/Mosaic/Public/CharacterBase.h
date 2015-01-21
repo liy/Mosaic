@@ -112,6 +112,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	class ACharacterController* GetCharacterController() const;
 
+	virtual void Tick(float delta) override;
+
 private:
 	/**
 	 * Handle the character orientation
@@ -162,6 +164,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input)
 	float DelayUpdateSkillState = 0.02f;
 
+
 	// 
 	UFUNCTION(BlueprintImplementableEvent, meta = (FriendlyName = "OnInput"), Category=Action)
 	virtual void ReceiveOnInput(EInputType action, EInputEvent event);
@@ -181,10 +184,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category=Skill)
 	void RemoveSkill(FName name);
 
-	UFUNCTION(BlueprintCallable, Category = Skill)
-	bool CanTrigger(FName skillName);
-
-
 protected:
 
 	// Contains current inputs
@@ -198,14 +197,38 @@ protected:
 	// Set the can trigger property of every skills to proper state
 	void UpdateSkillState();
 
+	// Set charge flag to true
+	void PerformCharge();
+
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill Library")
 	FSkill DoublePunch;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill Library")
+	FSkill DoublePunchFollowUp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Skill Library")
 	FSkill DashPunch;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill Library")
 	FSkill LowStrike;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill Library")
+	FSkill ChargedPunch;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Charge")
+	bool CanPreCharge;
+
+	// Reset this to false, when Charge animation complete
+	UPROPERTY(BlueprintReadWrite, Category = "Charge")
+	bool CanChargePunch;
+
+	// the charge increamental value
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge")
+	float ChargeDelta = 1.0f;
+
+	// The charge power
+	UPROPERTY(BlueprintReadOnly, Category = "Charge")
+	float ChargePower;
 };

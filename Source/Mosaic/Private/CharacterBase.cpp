@@ -65,22 +65,29 @@ ACharacterBase::ACharacterBase(const FObjectInitializer& objectInitializer)
 	DoublePunch.TriggerInputs.Init(2);
 	DoublePunch.TriggerInputs[0] = EInputType::Light;
 	DoublePunch.TriggerInputs[1] = EInputType::Medium;
-	//AddSkill(DoublePunch);
 	Skills.Add(&DoublePunch);
+
+	DoublePunchFollowUp.Name = FName("Double Punch Follow Up");
+	DoublePunchFollowUp.TriggerInputs.Init(1);
+	DoublePunchFollowUp.TriggerInputs[0] = EInputType::Light;
+	Skills.Add(&DoublePunchFollowUp);
+
+	DoublePunchFollowUp.Name = FName("Charged Punch");
+	DoublePunchFollowUp.TriggerInputs.Init(1);
+	DoublePunchFollowUp.TriggerInputs[0] = EInputType::Heavy;
+	Skills.Add(&DoublePunchFollowUp);
 
 	DashPunch.Name = FName("Dash Punch");
 	DashPunch.TriggerInputs.Init(3);
 	DashPunch.TriggerInputs[0] = EInputType::Forward;
 	DashPunch.TriggerInputs[1] = EInputType::Light;
 	DashPunch.TriggerInputs[2] = EInputType::Medium;
-	//AddSkill(DashPunch);
 	Skills.Add(&DashPunch);
 
 	LowStrike.Name = FName("Low Strike");
 	LowStrike.TriggerInputs.Init(2);
 	LowStrike.TriggerInputs[0] = EInputType::Down;
 	LowStrike.TriggerInputs[1] = EInputType::Light;
-	//AddSkill(LowStrike);
 	Skills.Add(&LowStrike);
 
 }
@@ -91,6 +98,19 @@ void ACharacterBase::BeginPlay()
 
 	// By default facing right
 	SetActorRotation(FRotator(0.0f, 90.0f, 0.0f));
+}
+
+
+void ACharacterBase::Tick(float delta)
+{
+	// Handle chages.
+	if (CanPreCharge){
+		ChargePower += ChargeDelta*delta;
+		//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::White, FString::Printf(TEXT("%f"), ChargePower));
+		if (ChargePower >= 1.0f){
+			PerformCharge();
+		}
+	}
 }
 
 void ACharacterBase::SetupPlayerInputComponent(class UInputComponent* inputComponent)
@@ -231,11 +251,18 @@ void ACharacterBase::HeavyPressed()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("HeavyPressed"));
 	OnInput(EInputType::Heavy);
+
+	CanPreCharge = true;
 }
 
 void ACharacterBase::HeavyReleased()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("HeavyReleased"));
+
+	// direction perform charge
+	PerformCharge();
+
+	CanPreCharge = false;
 }
 
 void ACharacterBase::DefencePressed()
@@ -376,34 +403,6 @@ void ACharacterBase::RemoveSkill(FName name)
 	SkillMap.Remove(name);
 }
 
-bool ACharacterBase::CanTrigger(FName name)
-{
-	//FSkill skill = SkillMap[name];
-
-	FSkill* skill = SkillMap.Find(name);
-
-	if (skill){
-		// The number of inputs does not match, fail the check
-		if (skill->TriggerInputs.Num() != InputSet.Num())
-		{
-			return false;
-		}
-
-		for (EInputType input : skill->TriggerInputs)
-		{
-			if (!InputSet.Contains(input))
-			{
-				return false;
-			}
-		}
-
-		return true;
-	}
-	else{
-		return false;
-	}
-}
-
 void ACharacterBase::UpdateSkillState()
 {
 	for (FSkill* skill : Skills)
@@ -439,4 +438,13 @@ void ACharacterBase::UpdateSkillState()
 
 	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, FString::Printf(TEXT("%d"), DoublePunch.CanTrigger));
 	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, FString::Printf(TEXT("%d"), s.CanTrigger));
+}
+
+void ACharacterBase::PerformCharge()
+{
+	CanChargePunch = true;
+	CanPreCharge = false;
+
+	// reset charge power
+	ChargePower = 0.0f;
 }
