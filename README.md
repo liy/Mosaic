@@ -36,6 +36,8 @@ Slate version of scrollable pane is ideal. Also the slot can be turned into a sl
 ## Spawn System
 Pickup spawn, NPC spawn. 
 
+At the moment, this spawn is based Component.
+
 ## Loot System part 1
 Naive loot system, can be just hard coded
 
@@ -46,7 +48,9 @@ Naive loot system, can be just hard coded
 
 
 ## User Input System
-Queue the user inputs, trigger appropriate actions
+Queue the user inputs, trigger appropriate actions.
+
+Combine *input statck* and unrealengine *animation state machine*.
 
 ## Animation System part 2
 Animation related to fighting pose.
@@ -62,6 +66,7 @@ Game AI development
 
 ## Level Design, NPC Design
 Game level design, enviroment creations.
+
 
 ## Loot System part 2
 Advance loot system, with proper random output.

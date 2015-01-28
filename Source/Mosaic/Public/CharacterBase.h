@@ -198,7 +198,10 @@ protected:
 	void UpdateSkillState();
 
 	// Set charge flag to true
-	void PerformCharge();
+	void ChargeComplete();
+
+	// Only handles the charge power increment
+	bool CanChargePower = false;
 
 public:
 
@@ -217,13 +220,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill Library")
 	FSkill ChargedPunch;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Charge")
-	bool CanPreCharge;
-
-	// Reset this to false, when Charge animation complete
-	UPROPERTY(BlueprintReadWrite, Category = "Charge")
-	bool CanChargePunch;
-
 	// the charge increamental value
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Charge")
 	float ChargeDelta = 1.0f;
@@ -231,4 +227,15 @@ public:
 	// The charge power
 	UPROPERTY(BlueprintReadOnly, Category = "Charge")
 	float ChargePower;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Charge")
+	bool CanTransitToCharge = false;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Charge")
+	bool CanTransitToChargePunch = false;
+
+	// Reset transition flags, when the charge punch animation complete.
+	// It will be called from animation blueprint
+	UFUNCTION(BlueprintCallable, Category = "Charge")
+	void ResetChargeTransition();
 };

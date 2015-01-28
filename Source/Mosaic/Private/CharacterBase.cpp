@@ -104,11 +104,11 @@ void ACharacterBase::BeginPlay()
 void ACharacterBase::Tick(float delta)
 {
 	// Handle chages.
-	if (CanPreCharge){
+	if (CanChargePower){
 		ChargePower += ChargeDelta*delta;
 		//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::White, FString::Printf(TEXT("%f"), ChargePower));
 		if (ChargePower >= 1.0f){
-			PerformCharge();
+			ChargeComplete();
 		}
 	}
 }
@@ -252,7 +252,11 @@ void ACharacterBase::HeavyPressed()
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("HeavyPressed"));
 	OnInput(EInputType::Heavy);
 
-	CanPreCharge = true;
+	// reset the charge power
+	ChargePower = 0.0f;
+	// Allow animation state machine to transist to charge state.
+	CanTransitToCharge = true;
+	CanChargePower = true;
 }
 
 void ACharacterBase::HeavyReleased()
@@ -260,9 +264,7 @@ void ACharacterBase::HeavyReleased()
 	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("HeavyReleased"));
 
 	// direction perform charge
-	PerformCharge();
-
-	CanPreCharge = false;
+	ChargeComplete();
 }
 
 void ACharacterBase::DefencePressed()
@@ -440,11 +442,17 @@ void ACharacterBase::UpdateSkillState()
 	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, FString::Printf(TEXT("%d"), s.CanTrigger));
 }
 
-void ACharacterBase::PerformCharge()
+void ACharacterBase::ChargeComplete()
 {
-	CanChargePunch = true;
-	CanPreCharge = false;
+	if (!CanTransitToChargePunch && ChargePower >= 1.0f){
+		CanTransitToChargePunch = true;
+		CanChargePower = false;
+	}
+}
 
-	// reset charge power
+void ACharacterBase::ResetChargeTransition()
+{
+	CanTransitToChargePunch = false;
+	CanTransitToCharge = false;
 	ChargePower = 0.0f;
 }
